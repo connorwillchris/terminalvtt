@@ -5,6 +5,9 @@
 
 #include "../common/lib.h"
 
+/*
+ * Unused global variables...
+*/
 const char ip_addr[] = "127.0.0.1";
 const unsigned int port = 7777;
 
@@ -26,21 +29,25 @@ void * msg_loop(ENetHost * client) {
 
 				case ENET_EVENT_TYPE_RECEIVE:
 					printf(
-						"A packet of length %u containing %s was received from %s on channel %u.\n",
+						"A packet of length %zu containing %s was received from %s on channel %u.\n",
 						event.packet->dataLength,
 						event.packet->data,
-						event.peer->data,
+						(char *)event.peer->data,
 						event.channelID
 					);
 					/* Clean up the packet now that we're done using it. */
-					enet_packet_destroy (event.packet);
+					enet_packet_destroy(event.packet);
 					break;
 
 				case ENET_EVENT_TYPE_DISCONNECT:
-					printf ("%s disconnected.\n", event.peer->data);
+					printf ("%s disconnected.\n", (char *)event.peer->data);
 					/* Reset the peer's client information. */
 					event.peer->data = NULL;
 					break;
+				
+				default: {
+					break;
+				}
 			}
 		}
 	}
@@ -127,6 +134,8 @@ int main(int argc, char ** argv) {
 		free(str);
 	}
 	// GAME LOOP END
+
+	// remove the thread now...
 	pthread_join(thread, NULL);
 
 	// disconnect from peer (server)
