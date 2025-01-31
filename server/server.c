@@ -31,7 +31,7 @@ void send_packet(ENetPeer * client, const char * data) {
 }
 
 void parse_data(ENetHost * server, int id, char * data) {
-	//printf("PARSE: ");
+	// data and how to parse it...
 	char data_type;
 	data_type = data[0];
 
@@ -95,7 +95,7 @@ int main(int argc, char ** argv) {
 	// forever loop
 	while (1) {
 		ENetEvent event;
-		while (enet_host_service(server, &event, 1000) > 0) {
+		while (enet_host_service(server, &event, 0) > 0) {
 			switch (event.type) {
 				case ENET_EVENT_TYPE_CONNECT: {
 					/*
@@ -141,8 +141,10 @@ int main(int argc, char ** argv) {
 					break;
 
 				case ENET_EVENT_TYPE_DISCONNECT:
-					printf("%x:%u disconnected.\n", event.peer->address.host,
-					event.peer->address.port);
+					printf("%x:%u disconnected.\n",
+						event.peer->address.host,
+						event.peer->address.port
+					);
 					event.peer->data = NULL;
 					break;
 				

@@ -15,12 +15,14 @@ char username[80];
 
 void * msg_loop(ENetHost * client) {
 	while (1) {
+
 		ENetEvent event;
+
 		while (enet_host_service(client, &event, 0) > 0) {
 			switch (event.type)
 			{
 				case ENET_EVENT_TYPE_CONNECT:
-					printf (
+					printf(
 						"A new client connected from %x:%u.\n",
 						event.peer -> address.host,
 						event.peer -> address.port
@@ -40,7 +42,7 @@ void * msg_loop(ENetHost * client) {
 					break;
 
 				case ENET_EVENT_TYPE_DISCONNECT:
-					printf ("%s disconnected.\n", (char *)event.peer->data);
+					printf("%s disconnected.\n", (char *)event.peer->data);
 					/* Reset the peer's client information. */
 					event.peer->data = NULL;
 					break;
@@ -125,6 +127,7 @@ int main(int argc, char ** argv) {
 	pthread_create(&thread, NULL, (void *)msg_loop, client);
 
 	// GAME LOOP BEGIN
+	/*
 	char running = 1;
 	while (running) {
 		char * str = check_box_input();
@@ -133,9 +136,54 @@ int main(int argc, char ** argv) {
 		// memory free hack -- frees the memory created by `post_message` so there are no issues.
 		free(str);
 	}
+	*/
 	// GAME LOOP END
 
-	// remove the thread now...
+	char running = 1;
+	while (running) {
+		char * str = check_box_input();
+		post_message(username, str);
+		send_packet(peer, str);
+
+		/*
+		while (enet_host_service(client, &event, 0) > 0) {
+			switch (event.type)
+			{
+				case ENET_EVENT_TYPE_CONNECT:
+					printf(
+						"A new client connected from %x:%u.\n",
+						event.peer -> address.host,
+						event.peer -> address.port
+					);
+					break;
+
+				case ENET_EVENT_TYPE_RECEIVE:
+					printf(
+						"A packet of length %zu containing %s was received from %s on channel %u.\n",
+						event.packet->dataLength,
+						event.packet->data,
+						(char *)event.peer->data,
+						event.channelID
+					);
+					Clean up the packet now that we're done using it.
+					enet_packet_destroy(event.packet);
+					break;
+
+				case ENET_EVENT_TYPE_DISCONNECT:
+					printf ("%s disconnected.\n", (char *)event.peer->data);
+					Reset the peer's client information.
+					event.peer->data = NULL;
+					break;
+				
+				default: {
+					break;
+				}
+			}
+		}*/
+
+		free(str);
+	}
+
 	pthread_join(thread, NULL);
 
 	// disconnect from peer (server)
