@@ -16,3 +16,4 @@ gcc -o build/server \
     server/server.c \
     common/lib.c \
     -lenet -lncurses -llua -lpthread
+

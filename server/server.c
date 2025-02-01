@@ -6,10 +6,7 @@
 
 #include "../common/ansi.h"
 
-typedef struct {
-	int client_id;
-	char username[80];
-} Client;
+const int port = 7777;
 
 void log_message(const char * color, const char * message) {
 	time_t now;
@@ -17,7 +14,6 @@ void log_message(const char * color, const char * message) {
 	struct tm * local = localtime(&now);
 	char time_buffer[80];
 	strftime(time_buffer, 80, "%Y-%m-%d %H:%M:%S", local);
-
 	printf("%s%s[%s] %s%s\n", color, BOLD, time_buffer, CLEAR_ALL, message);
 }
 
@@ -38,15 +34,15 @@ void parse_data(ENetHost * server, int id, char * data) {
 	switch(data_type) {
 		case 0x01: {
 			char username[80];
-
 			// get username
 			sscanf(data, "%*c%s", username);
 			char send_data[1024] = { 0 };
 			sprintf(send_data, "The user '%s' has logged in.", username);
 			log_message(FG_RED, send_data);
-
 			break;
 		}
+		default:
+			break;
 	}
 }
 
@@ -71,9 +67,7 @@ int main(int argc, char ** argv) {
 	 * enet_address_set_host (&address, "x.x.x.x");
 	 */
 	address.host = ENET_HOST_ANY;
-	// bind the server to port 7777
-	address.port = 7777;
-
+	address.port = port;
 	server = enet_host_create(
 		&address,
 		32, // peers that are allowed to connect.
@@ -98,33 +92,22 @@ int main(int argc, char ** argv) {
 		while (enet_host_service(server, &event, 0) > 0) {
 			switch (event.type) {
 				case ENET_EVENT_TYPE_CONNECT: {
-					/*
-					printf(
+					char buffer[256] = {0};
+					sprintf(
+						buffer,
 						"A new client connected from %x:%u!\n",
 						event.peer->address.host,
 						event.peer->address.port
 					);
-					clients_connected_len++;
-					*/
+					log_message(FG_BLUE, buffer);
 
-					/*
-					for (int i = 0; i < clients_connected_len; i++) {
-						char send_data[1024] = {0};
-						sprintf(send_data, "2|%d|%s", clients[i].client_id, clients[i].username);
-						// broadcast this packet
-					}
-					player_id++;
-					*/
-					
-					/*
-					char send_data[1024] = {0};
-					sprintf(send_data, "User '%s' has logged in.");
-					*/
+					//char send_data[1024] = {0};
+					//sprintf(send_data, "User '%s' has logged in.\n");
+
 					break;
 				}
 				
 				case ENET_EVENT_TYPE_RECEIVE:
-					/*
 					printf(
 						"A packet of length %zu containing '%s' was received from %x:%u \
 						on channel %u.\n",
@@ -134,8 +117,6 @@ int main(int argc, char ** argv) {
 						event.peer->address.port,
 						event.channelID
 					);
-					*/
-
 					parse_data(server, -1, (char *)event.packet->data);
 					enet_packet_destroy(event.packet);
 					break;
@@ -148,15 +129,13 @@ int main(int argc, char ** argv) {
 					event.peer->data = NULL;
 					break;
 				
-				default: {
-					break;
-				}
+				default: break;
 			}
 		}
 	}
 
+	// finally, deinitialize everything.
 	enet_host_destroy(server);
-	//free(clients);
 
 	return EXIT_SUCCESS;
 }
