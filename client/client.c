@@ -8,13 +8,23 @@
 #include "../common/lib.h"
 #include "../common/ansi.h"
 
-#include "game.h"
+//#include "game.h"
 
 const char default_addr[] = "127.0.0.1";
 const char * ip_addr;
 const unsigned int port = 7777;
 
 char username[80];
+
+void send_packet(ENetPeer * server, const char * data);
+void trim_whitespace(char * str);
+
+void game_loop(ENetPeer * peer) {
+	char * str = check_box_input();
+	trim_whitespace(str);
+	post_message(username, str);
+	send_packet(peer, str);
+}
 
 void trim_whitespace(char * str) {
 	// should work on both LINUX and WINDOWS

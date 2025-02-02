@@ -7,10 +7,12 @@ and enet.
 
 ## Building
 
-Uses xmake. Install xmake using your package manager, or installation on Windows platforms. Type `xmake` in the project
-after installing xmake and the prerequisistes below.
+Uses xmake. Install xmake using your package manager, or installation on Windows
+platforms. Type `xmake` in the project after installing xmake and the prerequisistes
+below.
 
 ### Prerequisites
 
 - enet
 - lua
+- xmake (for making)

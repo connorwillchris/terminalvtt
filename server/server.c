@@ -39,6 +39,7 @@ void parse_data(ENetHost * server, int id, char * data) {
 
 	switch(data_type) {
 		// SAME AS BELOW
+		/*
 		case 0x01: {
 			char username[80];
 			// get username
@@ -48,13 +49,14 @@ void parse_data(ENetHost * server, int id, char * data) {
 			log_message(FG_RED, send_data);
 			break;
 		}
+		*/
 
 		// THE USER HAS SENT US A USERNAME
 		case 0x02: {
 			char username[80];
-			sscanf("%*c%[^\n]", username);
+			sscanf(data, "%*c%[^\n]", username);
 			char send_data[1024] = { 0 };
-			sprintf(send_data, "The user %s has logged in.", username);
+			sprintf(send_data, "The user '%s' has logged in.", username);
 			log_message(FG_RED, send_data);
 			break;
 		}
@@ -102,7 +104,9 @@ host!\n");
 
 	// forever loop
 	while (1) {
+
 		ENetEvent event;
+		
 		while (enet_host_service(server, &event, 0) > 0) {
 			switch (event.type) {
 				case ENET_EVENT_TYPE_CONNECT: {
@@ -129,11 +133,11 @@ host!\n");
 					clients[player_id] = c;
 					event.peer->data = clients[player_id].username;
 					char data_to_send[128 + 1] = {0};
-					sprintf(data_to_send, "\x02", player_id);
+					sprintf(data_to_send, "\x02%u", player_id);
 					send_packet(event.peer, data_to_send);
 					break;
 				}
-				
+
 				case ENET_EVENT_TYPE_RECEIVE:
 					printf(
 						"A packet of length %zu containing '%s' was received from \
