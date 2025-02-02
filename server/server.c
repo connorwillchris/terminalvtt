@@ -38,6 +38,7 @@ void parse_data(ENetHost * server, int id, char * data) {
 	data_type = data[0];
 
 	switch(data_type) {
+		// SAME AS BELOW
 		case 0x01: {
 			char username[80];
 			// get username
@@ -47,6 +48,8 @@ void parse_data(ENetHost * server, int id, char * data) {
 			log_message(FG_RED, send_data);
 			break;
 		}
+
+		// THE USER HAS SENT US A USERNAME
 		case 0x02: {
 			char username[80];
 			sscanf("%*c%[^\n]", username);
@@ -113,9 +116,11 @@ host!\n");
 					log_message(FG_BLUE, buffer);
 
 					logged_in_players++;
+					/*
 					for (int i = 0; i < logged_in_players; i++) {
 						
 					}
+					*/
 					player_id++;
 					Client c = {
 						.id = player_id,
@@ -126,7 +131,6 @@ host!\n");
 					char data_to_send[128 + 1] = {0};
 					sprintf(data_to_send, "\x02", player_id);
 					send_packet(event.peer, data_to_send);
-
 					break;
 				}
 				
@@ -157,8 +161,8 @@ host!\n");
 		}
 	}
 
-	free(clients);
 	// finally, deinitialize everything.
+	free(clients);
 	enet_host_destroy(server);
 
 	return EXIT_SUCCESS;

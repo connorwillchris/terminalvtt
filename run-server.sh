@@ -1,3 +1,2 @@
 #!/usr/bin/sh
-./build/server
-
+./build/linux/x86_64/release/server

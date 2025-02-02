@@ -6,6 +6,9 @@
 #include <lualib.h>
 
 #include "../common/lib.h"
+#include "../common/ansi.h"
+
+#include "game.h"
 
 const char default_addr[] = "127.0.0.1";
 const char * ip_addr;
@@ -75,7 +78,7 @@ connection!\n");
 	}
 
 	if (enet_host_service(client, &event, 5000) // check if it's been 5 seconds
-	> 0 && event.type == ENET_EVENT_TYPE_CONNECT) {
+		> 0 && event.type == ENET_EVENT_TYPE_CONNECT) {
 		printf(
 			"Connection to %s:%u succeeded!\n",
 			ip_addr, port
@@ -97,11 +100,12 @@ connection!\n");
 
 	// initialize the chat screen
 	chat_screen_init();
+	move_cursor(5, 5);
 
 	// create a bool for wether we are running the game.
 	char running = 1;
 	while (running) {
-		while (enet_host_service(client, &event, 0) > 0) {
+		while (enet_host_service(client, &event, 0) > 5000) {
 			switch (event.type)
 			{
 				case ENET_EVENT_TYPE_CONNECT:
@@ -140,13 +144,8 @@ on channel %u.\n",
 		}
 
 		// game loop here
-		char * str = check_box_input();
-		trim_whitespace(str);
-		post_message(username, str);
-		send_packet(peer, str);
+		game_loop(peer);
 		// game loop end
-
-		free(str);
 	}
 
 	// disconnect from peer (server)
@@ -154,7 +153,7 @@ on channel %u.\n",
 
 	// Do some other server connection stuff - just to double check we have 100%
 	// left the server
-	while (enet_host_service(client, &event, 0) > 0) {
+	while (enet_host_service(client, &event, 0) > 5000) {
 		switch (event.type) {
 			case ENET_EVENT_TYPE_RECEIVE: {
 				enet_packet_destroy(event.packet);
