@@ -1,4 +1,8 @@
+# windows
 build
 libenet.a
 include
 .vs
+
+# linux
+.xmake

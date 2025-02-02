@@ -1,10 +1,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <enet/enet.h>
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
 
 #include "../common/lib.h"
 
-const char ip_addr[] = "127.0.0.1";
+const char default_addr[] = "127.0.0.1";
+const char * ip_addr;
 const unsigned int port = 7777;
 
 char username[80];
@@ -29,6 +33,16 @@ int main(int argc, char ** argv) {
 	ENetEvent event;
 	ENetPeer * peer;
 	ENetHost * client;
+	lua_State * L;
+
+	char buffer[80];
+	L = luaL_newstate();
+
+	luaL_dofile(L, "./config.lua");
+	lua_getglobal(L, "ip");
+	const char * string = lua_tostring(L, -1);
+	strncpy(buffer, string, 80);
+	ip_addr = buffer;
 
 	printf("Please enter your username: ");
 	fgets(username, 80, stdin);
@@ -60,7 +74,7 @@ connection!\n");
 		return EXIT_FAILURE;
 	}
 
-	if (enet_host_service(client, &event, 0) // check if it's been 5 seconds
+	if (enet_host_service(client, &event, 5000) // check if it's been 5 seconds
 	> 0 && event.type == ENET_EVENT_TYPE_CONNECT) {
 		printf(
 			"Connection to %s:%u succeeded!\n",
@@ -70,8 +84,8 @@ connection!\n");
 	else {
 		enet_peer_reset(peer);
 		printf(
-			"Connection to %s:%s failed!\n",
-			ip_addr, "7777"
+			"Connection to %s:%u failed!\n",
+			ip_addr, port
 		);
 		return EXIT_SUCCESS;
 	}
@@ -153,6 +167,8 @@ on channel %u.\n",
 			default: break;
 		}
 	}
+
+	lua_close(L);
 
 	return EXIT_SUCCESS;
 }
