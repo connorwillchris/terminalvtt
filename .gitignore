@@ -1,1 +1,4 @@
 build
+libenet.a
+include
+.vs
