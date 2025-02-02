@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <enet/enet.h>
-//#include <ctype.h>
 
 #include "../common/lib.h"
 
@@ -47,7 +46,7 @@ int main(int argc, char ** argv) {
 	client = enet_host_create(NULL, 1, 1, 0, 0);
 	if (client == NULL) {
 		fprintf(stderr, "An error occurred while trying to create an \
-		ENET client host!\n");
+ENET client host!\n");
 		return EXIT_FAILURE;
 	}
 
@@ -57,11 +56,11 @@ int main(int argc, char ** argv) {
 	peer = enet_host_connect(client, &address, 1, 0);
 	if (peer == NULL) {
 		fprintf(stderr, "No available peers for initializing an ENET \
-		connection!\n");
+connection!\n");
 		return EXIT_FAILURE;
 	}
 
-	if (enet_host_service(client, &event, 5000) // check if it's been 5 seconds
+	if (enet_host_service(client, &event, 0) // check if it's been 5 seconds
 	> 0 && event.type == ENET_EVENT_TYPE_CONNECT) {
 		printf(
 			"Connection to %s:%u succeeded!\n",
@@ -77,8 +76,8 @@ int main(int argc, char ** argv) {
 		return EXIT_SUCCESS;
 	}
 
-	// send the server the User's username!
-	char strdata[] = { 0x01, 0x00 };
+	// send the server the User's username
+	char strdata[] = "\x02";
 	strcat(strdata, username);
 	send_packet(peer, strdata);
 
@@ -102,7 +101,7 @@ int main(int argc, char ** argv) {
 				case ENET_EVENT_TYPE_RECEIVE:
 					printf(
 						"A packet of length %zu containing %s was received from %s \
-						on channel %u.\n",
+on channel %u.\n",
 						event.packet->dataLength,
 						event.packet->data,
 						(char *)event.peer->data,
@@ -131,6 +130,7 @@ int main(int argc, char ** argv) {
 		trim_whitespace(str);
 		post_message(username, str);
 		send_packet(peer, str);
+		// game loop end
 
 		free(str);
 	}
@@ -140,7 +140,7 @@ int main(int argc, char ** argv) {
 
 	// Do some other server connection stuff - just to double check we have 100%
 	// left the server
-	while (enet_host_service(client, &event, 1000) > 0) {
+	while (enet_host_service(client, &event, 0) > 0) {
 		switch (event.type) {
 			case ENET_EVENT_TYPE_RECEIVE: {
 				enet_packet_destroy(event.packet);

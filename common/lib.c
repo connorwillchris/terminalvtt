@@ -1,4 +1,5 @@
 #include "lib.h"
+#include "ansi.h"
 
 #include <stdlib.h>
 #include <ncurses.h>
@@ -8,15 +9,7 @@ static WINDOW * inputwin;
 static int msg_y = 0;
 */
 void chat_screen_init() {
-    //initscr();
-
-    //int yMax, xMax;
-    //getmaxyx(stdscr, yMax, xMax);
-    //inputwin = newwin(3, xMax-12, yMax-5, 5);
-    //box(inputwin, 0, 0);
-    //refresh();
-    //wrefresh(inputwin);
-    printf("CHAT SCREEN INIT HERE.\n");
+    printf("%s%s", ERASE_SCREEN, CURSOR_MOVE_HOME);
 }
 
 char * check_box_input() {

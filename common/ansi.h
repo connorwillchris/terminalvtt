@@ -4,6 +4,7 @@
 #define CLEAR_ALL   "\x1b[0m"
 #define BOLD        "\x1b[1m"
 
+// colors
 #define FG_BLACK    "\x1b[30m"
 #define FG_RED      "\x1b[31m"
 #define FG_GREEN    "\x1b[32m"
@@ -14,6 +15,9 @@
 #define FG_WHITE    "\x1b[37m"
 #define FG_DEFAULT  "\x1b[39m"
 
-//void log(const char * string);
+#define ERASE_SCREEN "\x1b[2J"
+#define CURSOR_MOVE_HOME "\x1b[H"
+
+void move_cursor(int line, int col);
 
 #endif

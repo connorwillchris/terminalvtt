@@ -9,11 +9,13 @@ echo "Making the client..."
 gcc -o build/client \
     client/client.c \
     common/lib.c \
+    common/ansi.c \
     -lenet -lncurses -llua -lpthread
 
 echo "Making the server..."
 gcc -o build/server \
     server/server.c \
     common/lib.c \
+    common/ansi.c \
     -lenet -lncurses -llua -lpthread
 
