@@ -5,10 +5,10 @@
 #include <lauxlib.h>
 #include <lualib.h>
 
+#include "lua_wrapper.h"
 #include "../common/lib.h"
 #include "../common/ansi.h"
-
-//#include "game.h"
+#include "../libs/pcg/pcg_basic.h"
 
 const char default_addr[] = "127.0.0.1";
 const char * ip_addr;
@@ -16,19 +16,15 @@ const unsigned int port = 7777;
 
 char username[80];
 
+// forward declarations
 void send_packet(ENetPeer * server, const char * data);
-void trim_whitespace(char * str);
+//void trim_whitespace(char * str);
 
 void game_loop(ENetPeer * peer) {
 	char * str = check_box_input();
 	trim_whitespace(str);
 	post_message(username, str);
 	send_packet(peer, str);
-}
-
-void trim_whitespace(char * str) {
-	// should work on both LINUX and WINDOWS
-	str[strcspn(str, "\n\r")] = 0;
 }
 
 void send_packet(ENetPeer * server, const char * data) {
@@ -42,14 +38,15 @@ void send_packet(ENetPeer * server, const char * data) {
 
 int main(int argc, char ** argv) {
 	// initalize variables
+	char buffer[80];
 	ENetAddress address;
 	ENetEvent event;
 	ENetPeer * peer;
 	ENetHost * client;
 	lua_State * L;
 
-	char buffer[80];
-	L = luaL_newstate();
+	// initialize variables now
+	L = init_lua();
 
 	luaL_dofile(L, "./config.lua");
 	lua_getglobal(L, "ip");
@@ -57,6 +54,7 @@ int main(int argc, char ** argv) {
 	strncpy(buffer, string, 80);
 	ip_addr = buffer;
 
+	// begin of game
 	printf("Please enter your username: ");
 	fgets(username, 80, stdin);
 	trim_whitespace(username);
@@ -104,13 +102,13 @@ connection!\n");
 	}
 
 	// send the server the User's username
-	char strdata[] = "\x02";
+	char strdata[] = "\x01";
 	strcat(strdata, username);
 	send_packet(peer, strdata);
 
 	// initialize the chat screen
 	chat_screen_init();
-	move_cursor(5, 5);
+	//move_cursor(5, 5);
 
 	// create a bool for wether we are running the game.
 	char running = 1;
@@ -147,9 +145,7 @@ on channel %u.\n",
 					event.peer->data = NULL;
 					break;
 				
-				default: {
-					break;
-				}
+				default: break;
 			}
 		}
 

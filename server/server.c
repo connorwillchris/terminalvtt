@@ -5,6 +5,7 @@
 #include <enet/enet.h>
 
 #include "../common/ansi.h"
+#include "../common/lib.h"
 
 const int port = 7777;
 const int max_clients = 32;
@@ -38,8 +39,7 @@ void parse_data(ENetHost * server, int id, char * data) {
 	data_type = data[0];
 
 	switch(data_type) {
-		// SAME AS BELOW
-		/*
+		// the user has sent a USERNAME
 		case 0x01: {
 			char username[80];
 			// get username
@@ -49,17 +49,19 @@ void parse_data(ENetHost * server, int id, char * data) {
 			log_message(FG_RED, send_data);
 			break;
 		}
-		*/
 
-		// THE USER HAS SENT US A USERNAME
+		// the user has sent a REQUEST
 		case 0x02: {
-			char username[80];
-			sscanf(data, "%*c%[^\n]", username);
-			char send_data[1024] = { 0 };
-			sprintf(send_data, "The user '%s' has logged in.", username);
-			log_message(FG_RED, send_data);
+			char request[80];
+
+			// scan for the request
+			sscanf(data, "%*c/%s", request);
+			trim_whitespace(request);
+			int test = strcmp(request, "exit");
+
 			break;
 		}
+
 		default: break;
 	}
 }
@@ -117,14 +119,9 @@ host!\n");
 						event.peer->address.host,
 						event.peer->address.port
 					);
-					log_message(FG_BLUE, buffer);
+					log_message(FG_RED, buffer);
 
 					logged_in_players++;
-					/*
-					for (int i = 0; i < logged_in_players; i++) {
-						
-					}
-					*/
 					player_id++;
 					Client c = {
 						.id = player_id,
@@ -133,8 +130,10 @@ host!\n");
 					clients[player_id] = c;
 					event.peer->data = clients[player_id].username;
 					char data_to_send[128 + 1] = {0};
+					/*
 					sprintf(data_to_send, "\x02%u", player_id);
 					send_packet(event.peer, data_to_send);
+					*/
 					break;
 				}
 
@@ -153,10 +152,12 @@ host!\n");
 					break;
 
 				case ENET_EVENT_TYPE_DISCONNECT:
+					
 					printf("%x:%u disconnected.\n",
 						event.peer->address.host,
 						event.peer->address.port
 					);
+					//log_message();
 					event.peer->data = NULL;
 					break;
 				
