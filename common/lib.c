@@ -33,12 +33,13 @@ void trim_whitespace(char * str) {
 }
 
 void init_random_seed() {
-	
+    pcg32_srandom_r(&rng, time(NULL) ^ (intptr_t)&printf, (intptr_t)&round);
 }
 
 int roll_dice(const char * roll) {
     int r;
-	pcg32_srandom_r(&rng, time(NULL) ^ (intptr_t)&printf, (intptr_t)&round);
+
+    uint32_t r1 = pcg32_random_r(&rng);
 
     return r;
 }
